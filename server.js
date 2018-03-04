@@ -16,7 +16,7 @@ const mimeTypes = {
   '.png': 'image/png'
 };
 const documentRoot = 'www/';
-const requestHandler = (request, response) => {
+const processRequest = (request, response) => {
   let filePath = request.url;
 
   if (filePath === '/') {
@@ -25,22 +25,37 @@ const requestHandler = (request, response) => {
   const extname = String(path.extname(filePath)).toLowerCase();
   const contentType = mimeTypes[extname] || mimeTypes.oct;
 
-  fs.readFile(path.join('www', filePath), (error, content) => {
-    if (error) {
-      if (error.code === 'ENOENT') {
+  if (filePath.startsWith('/api')) {
+    try {
+      const handler = require(path.join('www', filePath));
+      if (handler.processRequest && typeof handler.processRequest === 'function') {
+        handler.processRequest(request, response); // dynamic resources
+      } else {
         response.writeHead(404);
         response.end();
-      } else {
-        response.writeHead(500);
-        response.end();
       }
-    } else {
-      response.writeHead(200, { 'Content-Type': contentType });
-      response.end(content, 'utf-8');
+    } catch (e) {
+      response.writeHead(500);
+      response.end();
     }
-  });
+  } else {
+    fs.readFile(path.join('www', filePath), (error, content) => {
+      if (error) {
+        if (error.code === 'ENOENT') {
+          response.writeHead(404);
+          response.end();
+        } else {
+          response.writeHead(500);
+          response.end();
+        }
+      } else {
+        response.writeHead(200, { 'Content-Type': contentType });
+        response.end(content, 'utf-8');
+      }
+    });
+  }
 };
 
-http.createServer(requestHandler).listen(8080);
+http.createServer(processRequest).listen(8080);
 
 console.log('HTTP server is listening at port 8080');
