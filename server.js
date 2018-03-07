@@ -27,7 +27,7 @@ const processRequest = (request, response) => {
 
   if (filePath.startsWith('/api')) {
     try {
-      const handler = require(path.join('www', filePath));
+      const handler = require('./www' + filePath);
       if (handler.processRequest && typeof handler.processRequest === 'function') {
         handler.processRequest(request, response); // dynamic resources
       } else {
