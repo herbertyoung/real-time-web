@@ -35,4 +35,39 @@ class ShortPolling {
   }
 }
 
+class LongPolling {
+  constructor() {
+    this.started = false;
+  }
+  poll() {
+    if (!this.started) {
+      return;
+    }
+    axios.get('/api/longPolling')
+      .then(response => {
+        const ul = document.querySelector('#content .long-polling');
+        ul.insertAdjacentHTML('beforeEnd', `<li>${new Date(response.data.timeStamp)}</li>`);
+        ul.scrollTop = ul.scrollHeight - ul.offsetHeight;
+        this.poll();
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+  start() {
+    if (this.started) {
+      return;
+    }
+    this.started = true;
+    this.poll();
+  }
+  end() {
+    this.started = false;
+  }
+  clear() {
+    document.querySelector('#content .long-polling').innerHTML = '';
+  }
+}
+
 const shortPolling = new ShortPolling();
+const longPolling = new LongPolling();
