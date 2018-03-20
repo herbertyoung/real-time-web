@@ -69,5 +69,31 @@ class LongPolling {
   }
 }
 
+class ServerSentEvents {
+  constructor() {
+    this.eventSource = null;
+  }
+  start() {
+    if (this.eventSource) {
+      return;
+    }
+    this.eventSource = new EventSource('/api/serverSentEvents');
+    this.eventSource.addEventListener('message', (e) => {
+      const data = JSON.parse(e.data);
+      const ul = document.querySelector('#content .server-sent-events');
+      ul.insertAdjacentHTML('beforeEnd', `<li>${new Date(data.timeStamp)}</li>`);
+      ul.scrollTop = ul.scrollHeight - ul.offsetHeight;
+    }, false);
+  }
+  end() {
+    this.eventSource && (this.eventSource.close());
+    this.eventSource = null;
+  }
+  clear() {
+    document.querySelector('#content .server-sent-events').innerHTML = '';
+  }
+}
+
 const shortPolling = new ShortPolling();
 const longPolling = new LongPolling();
+const serverSentEvents = new ServerSentEvents();
