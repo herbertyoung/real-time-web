@@ -3,6 +3,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const port = process.env.PORT || 8080;
 
 const mimeTypes = {
   '.css': 'text/css',
@@ -56,6 +57,6 @@ const processRequest = (request, response) => {
   }
 };
 
-http.createServer(processRequest).listen(8080);
+http.createServer(processRequest).listen(port);
 
-console.log('HTTP server is listening at port 8080');
+console.log('HTTP server is listening at port ' + port);
