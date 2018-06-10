@@ -24,7 +24,7 @@ const processRequest = (request, response) => {
     filePath += 'index.html';
   }
   const extname = String(path.extname(filePath)).toLowerCase();
-  const contentType = mimeTypes[extname] || mimeTypes.oct;
+  const contentType = mimeTypes[extname] || mimeTypes['.oct'];
 
   if (filePath.startsWith('/api')) {
     try {
